@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Finder</title>
+  <style>
+    :root {
+      --paper: #f3efe6;
+      --ink: #1c1915;
+      --muted: #5e584f;
+      --line: #ddd4c4;
+      --card: #fffdf8;
+      --accent: #0f6e56;
+      --accent-dark: #0b5342;
+      --danger: #8d2b2b;
+      --warn: #8a5a12;
+      --shadow: 0 1px 0 rgba(28, 25, 21, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 110, 86, 0.08), transparent 32rem),
+        var(--paper);
+      font: 16px/1.5 "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-family: Palatino, "Iowan Old Style", Georgia, serif;
+      font-size: 42px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    header p, .lede {
+      margin: 0;
+      max-width: 46rem;
+      color: var(--muted);
+    }
+
+    section {
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #cbbfaa;
+      border-radius: 10px;
+      font: inherit;
+    }
+
+    textarea { min-height: 76px; resize: vertical; }
+
+    input:focus, textarea:focus, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .row, .key-row, .options {
+      display: flex;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .grow { flex: 1; }
+
+    button, .button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover, .button:hover { background: var(--accent-dark); }
+
+    button.secondary, .button.secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid #cbbfaa;
+    }
+
+    button.secondary:hover { background: #f6f1e8; }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .status, .error, .credit, .hint {
+      margin: 12px 0 0;
+      font-size: 14px;
+    }
+
+    .error { color: var(--danger); }
+    .hint, .status { color: var(--muted); }
+    .credit { color: var(--warn); }
+
+    .companies, .chips, .choice {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .companies { margin-top: 14px; }
+
+    .company {
+      display: block;
+      min-width: min(100%, 240px);
+      flex: 1;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .company:has(input:checked) {
+      border-color: var(--accent);
+      background: #f3faf7;
+    }
+
+    .company input { margin-right: 8px; }
+    .company strong { display: inline; }
+    .company small { display: block; color: var(--muted); }
+
+    .chip {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid #cbbfaa;
+    }
+
+    .chip[aria-pressed="true"] {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .choice label {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 0;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .options { margin-top: 16px; align-items: end; flex-wrap: wrap; }
+    .limit { width: 120px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .table-wrap { overflow-x: auto; }
+    a { color: var(--accent-dark); }
+
+    .table-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 720px) {
+      header h1 { font-size: 34px; }
+      .row, .key-row, .table-head { display: block; }
+      button, .button { margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Contact Finder</h1>
+      <p>Search a company, choose a team, and download names, titles, emails, phones, and LinkedIn links from your Apollo account.</p>
+    </header>
+
+    <section>
+      <h2>Apollo API key</h2>
+      <div class="key-row">
+        <div class="grow">
+          <label for="api-key">Master API key</label>
+          <input id="api-key" type="password" autocomplete="off" placeholder="Paste your Apollo API key">
+        </div>
+        <button id="save-key" type="button">Save key</button>
+        <button id="toggle-key" class="secondary" type="button">Show</button>
+        <button id="remove-key" class="secondary" type="button">Remove</button>
+      </div>
+      <p id="key-status" class="hint">The key stays in a local file on this computer.</p>
+      <p id="key-error" class="error" role="alert"></p>
+    </section>
+
+    <section>
+      <h2>Company</h2>
+      <form id="company-form">
+        <div class="row">
+          <div class="grow">
+            <label for="company">Company name</label>
+            <input id="company" type="text" placeholder="Example: Stripe" required>
+          </div>
+          <button id="search-company" type="submit">Search companies</button>
+        </div>
+      </form>
+      <p id="company-error" class="error" role="alert"></p>
+      <div id="companies" class="companies"></div>
+    </section>
+
+    <section>
+      <h2>Team</h2>
+      <div id="teams" class="chips"></div>
+      <div style="margin-top: 16px">
+        <label for="custom-titles">Other job titles</label>
+        <textarea id="custom-titles" placeholder="Separate titles with commas, for example: head of partnerships, customer success"></textarea>
+      </div>
+      <div class="options">
+        <fieldset style="border: 0; padding: 0; margin: 0">
+          <legend style="font-size: 14px; font-weight: 600; margin-bottom: 6px">Contact details</legend>
+          <div class="choice">
+            <label><input type="radio" name="contact-type" value="email" checked> Email</label>
+            <label><input type="radio" name="contact-type" value="phone"> Phone</label>
+            <label><input type="radio" name="contact-type" value="both"> Both</label>
+          </div>
+        </fieldset>
+        <div class="limit">
+          <label for="limit">People</label>
+          <input id="limit" type="number" min="1" max="100" value="25">
+        </div>
+      </div>
+      <p class="credit">This call uses Apollo credits. A matched profile or email is about 1 credit per person. A mobile number costs extra credits and can take a few minutes.</p>
+      <button id="find" type="button">Find contacts</button>
+      <p id="find-error" class="error" role="alert"></p>
+      <p id="find-status" class="status" role="status"></p>
+    </section>
+
+    <section id="results-section" class="hidden">
+      <div class="table-head">
+        <h2 style="margin: 0">Results</h2>
+        <button id="download" class="secondary" type="button">Download CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Designation</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>LinkedIn</th>
+              <th>Location</th>
+              <th>Seniority</th>
+            </tr>
+          </thead>
+          <tbody id="results"></tbody>
+        </table>
+      </div>
+      <p id="empty" class="hint hidden">No people matched that company and those titles.</p>
+    </section>
+  </main>
+
+  <script>
+    const TEAMS = {
+      Sales: ["sales", "account executive", "business development", "sales development representative"],
+      Marketing: ["marketing", "demand generation", "content marketing", "growth"],
+      HR: ["human resources", "recruiter", "talent acquisition", "people operations"],
+      Engineering: ["engineer", "software", "developer", "engineering manager"],
+      Finance: ["finance", "accounting", "controller", "chief financial officer"],
+      Leadership: ["founder", "chief executive officer", "chief operating officer", "vice president", "director"]
+    };
+
+    const selectedTeams = new Set();
+    let companies = [];
+    let contacts = [];
+    let phoneNote = "";
+
+    const keyInput = document.querySelector("#api-key");
+    const keyStatus = document.querySelector("#key-status");
+    const keyError = document.querySelector("#key-error");
+    const companyError = document.querySelector("#company-error");
+    const companyList = document.querySelector("#companies");
+    const findError = document.querySelector("#find-error");
+    const findStatus = document.querySelector("#find-status");
+    const resultsSection = document.querySelector("#results-section");
+    const resultsBody = document.querySelector("#results");
+    const emptyNote = document.querySelector("#empty");
+
+    function text(value) {
+      return value == null ? "" : String(value);
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+      });
+      const raw = await response.text();
+      let data = null;
+      if (raw) {
+        try { data = JSON.parse(raw); } catch { data = { detail: raw }; }
+      }
+      if (!response.ok) {
+        const detail = data && data.detail ? data.detail : `Request failed (${response.status})`;
+        throw new Error(typeof detail === "string" ? detail : "Check the form and try again.");
+      }
+      return data;
+    }
+
+    function setBusy(button, busy, label) {
+      button.disabled = busy;
+      button.textContent = busy ? label : button.dataset.label;
+    }
+
+    function selectedCompany() {
+      const chosen = document.querySelector('input[name="company"]:checked');
+      if (!chosen) return null;
+      return companies.find((company) => company.id === chosen.value) || null;
+    }
+
+    function collectTitles() {
+      const titles = [];
+      selectedTeams.forEach((team) => titles.push(...TEAMS[team]));
+      const custom = document.querySelector("#custom-titles").value
+        .split(/[\n,]/)
+        .map((title) => title.trim())
+        .filter(Boolean);
+      titles.push(...custom);
+      return titles;
+    }
+
+    function renderCompanies() {
+      companyList.innerHTML = "";
+      companies.forEach((company, index) => {
+        const label = document.createElement("label");
+        label.className = "company";
+        const facts = [company.domain, company.location, company.employees ? `${company.employees.toLocaleString()} employees` : "", company.founded_year ? `Founded ${company.founded_year}` : ""]
+          .filter(Boolean)
+          .join(" · ");
+        label.innerHTML = `<input type="radio" name="company" value="" ${index === 0 ? "checked" : ""}> <strong></strong><small></small>`;
+        label.querySelector("input").value = company.id;
+        label.querySelector("strong").textContent = company.name;
+        label.querySelector("small").textContent = facts || "Apollo company match";
+        companyList.appendChild(label);
+      });
+    }
+
+    function renderContacts() {
+      resultsSection.classList.remove("hidden");
+      resultsBody.innerHTML = "";
+      emptyNote.classList.toggle("hidden", contacts.length > 0);
+      document.querySelector("#download").disabled = contacts.length === 0;
+      contacts.forEach((contact) => {
+        const row = document.createElement("tr");
+        const cells = ["name", "designation", "email", "phone", "linkedin_url", "location", "seniority"];
+        cells.forEach((key) => {
+          const cell = document.createElement("td");
+          if (key === "linkedin_url" && contact.linkedin_url) {
+            const link = document.createElement("a");
+            link.href = contact.linkedin_url;
+            link.target = "_blank";
+            link.rel = "noreferrer";
+            link.textContent = "Profile";
+            cell.appendChild(link);
+          } else if (key === "email" && contact.email) {
+            const link = document.createElement("a");
+            link.href = `mailto:${contact.email}`;
+            link.textContent = contact.email;
+            cell.appendChild(link);
+          } else {
+            cell.textContent = text(contact[key]);
+          }
+          row.appendChild(cell);
+        });
+        resultsBody.appendChild(row);
+      });
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function pollPhones(requestIds) {
+      const pending = new Set(requestIds);
+      const started = Date.now();
+      while (pending.size && Date.now() - started < 4 * 60 * 1000) {
+        let waitSeconds = 8;
+        for (const requestId of [...pending]) {
+          const data = await api(`/api/phones/${encodeURIComponent(requestId)}`);
+          if (data.retry_after_seconds) waitSeconds = Math.max(waitSeconds, Number(data.retry_after_seconds) || 8);
+          if (data.status === "ready") {
+            pending.delete(requestId);
+            contacts = contacts.map((contact) => {
+              const phone = data.phones && data.phones[contact.id];
+              return phone ? { ...contact, phone } : contact;
+            });
+          } else if (data.status === "failed") {
+            pending.delete(requestId);
+            phoneNote = data.message || "Some phone numbers could not be loaded.";
+          }
+        }
+        renderContacts();
+        const found = contacts.filter((contact) => contact.phone).length;
+        findStatus.textContent = pending.size
+          ? `Looking up phone numbers. ${found} ready so far.`
+          : `Phone lookup finished. ${found} number${found === 1 ? "" : "s"} found. ${phoneNote}`.trim();
+        if (pending.size) await sleep(Math.min(waitSeconds, 30) * 1000);
+      }
+      if (pending.size) {
+        findStatus.textContent = "Phone lookup is still running at Apollo. Download the CSV now, or search again later for numbers that arrive late.";
+      }
+    }
+
+    document.querySelector("#teams").innerHTML = Object.keys(TEAMS).map((team) =>
+      `<button type="button" class="chip" data-team="${team}" aria-pressed="false">${team}</button>`
+    ).join("");
+
+    document.querySelector("#teams").addEventListener("click", (event) => {
+      const button = event.target.closest(".chip");
+      if (!button) return;
+      const team = button.dataset.team;
+      if (selectedTeams.has(team)) selectedTeams.delete(team);
+      else selectedTeams.add(team);
+      button.setAttribute("aria-pressed", selectedTeams.has(team) ? "true" : "false");
+    });
+
+    document.querySelector("#toggle-key").addEventListener("click", () => {
+      const hidden = keyInput.type === "password";
+      keyInput.type = hidden ? "text" : "password";
+      document.querySelector("#toggle-key").textContent = hidden ? "Hide" : "Show";
+    });
+
+    document.querySelector("#save-key").addEventListener("click", async () => {
+      keyError.textContent = "";
+      const button = document.querySelector("#save-key");
+      button.dataset.label = "Save key";
+      setBusy(button, true, "Saving…");
+      try {
+        const data = await api("/api/key", {
+          method: "PUT",
+          body: JSON.stringify({ api_key: keyInput.value })
+        });
+        keyInput.value = "";
+        keyStatus.textContent = `Key saved locally. Ending in ${data.hint}.`;
+      } catch (error) {
+        keyError.textContent = error.message;
+      } finally {
+        setBusy(button, false);
+      }
+    });
+
+    document.querySelector("#remove-key").addEventListener("click", async () => {
+      keyError.textContent = "";
+      try {
+        await api("/api/key", { method: "DELETE" });
+        keyStatus.textContent = "Key removed from this computer.";
+      } catch (error) {
+        keyError.textContent = error.message;
+      }
+    });
+
+    document.querySelector("#company-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      companyError.textContent = "";
+      companyList.innerHTML = "";
+      const button = document.querySelector("#search-company");
+      button.dataset.label = "Search companies";
+      setBusy(button, true, "Searching…");
+      try {
+        const data = await api("/api/companies", {
+          method: "POST",
+          body: JSON.stringify({ name: document.querySelector("#company").value })
+        });
+        companies = data.companies || [];
+        if (!companies.length) {
+          companyError.textContent = "No companies matched that name.";
+          return;
+        }
+        renderCompanies();
+      } catch (error) {
+        companyError.textContent = error.message;
+      } finally {
+        setBusy(button, false);
+      }
+    });
+
+    document.querySelector("#find").addEventListener("click", async () => {
+      findError.textContent = "";
+      findStatus.textContent = "";
+      phoneNote = "";
+      const company = selectedCompany();
+      const titles = collectTitles();
+      if (!company) {
+        findError.textContent = "Search for a company and pick the right match.";
+        return;
+      }
+      if (!titles.length) {
+        findError.textContent = "Pick a team or enter a job title.";
+        return;
+      }
+      const button = document.querySelector("#find");
+      button.dataset.label = "Find contacts";
+      setBusy(button, true, "Finding…");
+      findStatus.textContent = "Searching Apollo and loading contact details. This spends credits.";
+      try {
+        const data = await api("/api/contacts", {
+          method: "POST",
+          body: JSON.stringify({
+            organization_id: company.id,
+            company_name: company.name,
+            domain: company.domain || "",
+            titles,
+            contact_type: document.querySelector('input[name="contact-type"]:checked').value,
+            limit: Number(document.querySelector("#limit").value || 25)
+          })
+        });
+        contacts = data.contacts || [];
+        renderContacts();
+        const creditNote = data.credits_consumed ? ` Apollo reported ${data.credits_consumed} credits used.` : "";
+        findStatus.textContent = contacts.length
+          ? `Loaded ${contacts.length} people.${creditNote} ${data.warning || ""}`.trim()
+          : "No people matched that company and those titles.";
+        if (data.phone_request_ids && data.phone_request_ids.length) {
+          findStatus.textContent = `Loaded ${contacts.length} people. Looking up phone numbers.${creditNote}`;
+          await pollPhones(data.phone_request_ids);
+        }
+      } catch (error) {
+        findError.textContent = error.message;
+      } finally {
+        setBusy(button, false);
+      }
+    });
+
+    document.querySelector("#download").addEventListener("click", async () => {
+      findError.textContent = "";
+      try {
+        const response = await fetch("/api/contacts/csv", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contacts: contacts.map((contact) => ({
+              name: contact.name || "",
+              designation: contact.designation || "",
+              email: contact.email || "",
+              phone: contact.phone || "",
+              linkedin_url: contact.linkedin_url || "",
+              company: contact.company || "",
+              domain: contact.domain || "",
+              location: contact.location || "",
+              seniority: contact.seniority || ""
+            }))
+          })
+        });
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.detail || "Could not build the CSV.");
+        }
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "contacts.csv";
+        link.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        findError.textContent = error.message;
+      }
+    });
+
+    api("/api/key").then((data) => {
+      if (data.configured) keyStatus.textContent = `Key saved locally. Ending in ${data.hint}.`;
+    }).catch(() => {
+      keyStatus.textContent = "The key stays in a local file on this computer.";
+    });
+  </script>
+</body>
+</html>
